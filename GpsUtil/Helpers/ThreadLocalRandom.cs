@@ -17,9 +17,9 @@ internal static class ThreadLocalRandom
         return Current.NextDouble() * (maxValue - minValue) + minValue;
     }
 
-    public static int Next(int minValue, int maxValue)
-    {
-        return Current.Next(minValue, maxValue);
-    }
+    //public static int Next(int minValue, int maxValue)
+    //{
+    //    return Current.Next(minValue, maxValue);
+    //}
 }
 

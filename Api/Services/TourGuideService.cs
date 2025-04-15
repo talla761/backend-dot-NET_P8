@@ -49,9 +49,11 @@ public class TourGuideService : ITourGuideService
         return user.UserRewards;
     }
 
-    public VisitedLocation GetUserLocation(User user)
+    public async Task<VisitedLocation> GetUserLocation(User user)
     {
-        return user.VisitedLocations.Any() ? user.GetLastVisitedLocation() : TrackUserLocation(user);
+        return user.VisitedLocations.Any() 
+            ? user.GetLastVisitedLocation() 
+            : await TrackUserLocation(user);
     }
 
     public User GetUser(string userName)
@@ -72,28 +74,34 @@ public class TourGuideService : ITourGuideService
         }
     }
 
-    public List<Provider> GetTripDeals(User user)
+    public async Task<List<Provider>> GetTripDeals(User user)
     {
         int cumulativeRewardPoints = user.UserRewards.Sum(i => i.RewardPoints);
-        List<Provider> providers = _tripPricer.GetPrice(TripPricerApiKey, user.UserId,
-            user.UserPreferences.NumberOfAdults, user.UserPreferences.NumberOfChildren,
-            user.UserPreferences.TripDuration, cumulativeRewardPoints);
+        List<Provider> providers = await Task.Run(() =>_tripPricer.GetPrice(TripPricerApiKey, 
+            user.UserId,
+            user.UserPreferences.NumberOfAdults, 
+            user.UserPreferences.NumberOfChildren,
+            user.UserPreferences.TripDuration, 
+            cumulativeRewardPoints));
+
         user.TripDeals = providers;
         return providers;
     }
 
-    public VisitedLocation TrackUserLocation(User user)
+    public async Task<VisitedLocation> TrackUserLocation(User user)
     {
-        VisitedLocation visitedLocation = _gpsUtil.GetUserLocation(user.UserId);
+        VisitedLocation visitedLocation = await _gpsUtil.GetUserLocation(user.UserId);
         user.AddToVisitedLocations(visitedLocation);
-        _rewardsService.CalculateRewards(user);
+        await _rewardsService.CalculateRewards(user);
         return visitedLocation;
     }
 
-    public List<Attraction> GetNearByAttractions(VisitedLocation visitedLocation)
+    public async Task<List<Attraction>> GetNearByAttractions(VisitedLocation visitedLocation)
     {
         List<Attraction> nearbyAttractions = new ();
-        foreach (var attraction in _gpsUtil.GetAttractions())
+        var attractions = await _gpsUtil.GetAttractions();
+
+        foreach (var attraction in attractions)
         {
             if (_rewardsService.IsWithinAttractionProximity(attraction, visitedLocation.Location))
             {
@@ -139,14 +147,16 @@ public class TourGuideService : ITourGuideService
 
     private static readonly Random random = new Random();
 
-    private double GenerateRandomLongitude()
+    private double GenerateRandomLongitude() 
     {
-        return new Random().NextDouble() * (180 - (-180)) + (-180);
+        //return new Random().NextDouble() * (180 - (-180)) + (-180);
+        return random.NextDouble() * (180 - (-180)) + (-180);
     }
 
-    private double GenerateRandomLatitude()
+private double GenerateRandomLatitude()
     {
-        return new Random().NextDouble() * (90 - (-90)) + (-90);
+        //return new Random().NextDouble() * (90 - (-90)) + (-90);
+        return random.NextDouble() * (90 - (-90)) + (-90);
     }
 
     private DateTime GetRandomTime()
