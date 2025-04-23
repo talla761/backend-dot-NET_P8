@@ -78,11 +78,24 @@ namespace TourGuideTest
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
 
-            Attraction attraction = (await _fixture.GpsUtil.GetAttractions())[0];
-            List<User> allUsers = _fixture.TourGuideService.GetAllUsers();
-            allUsers.ForEach(u => u.AddToVisitedLocations(new VisitedLocation(u.UserId, attraction, DateTime.Now)));
+            var attractions = await _fixture.GpsUtil.GetAttractions();
+            Attraction attraction = attractions[0];
 
-            allUsers.ForEach(u => _fixture.RewardsService.CalculateRewards(u));
+            List<User> allUsers = _fixture.TourGuideService.GetAllUsers();
+
+            //Ajout d'une visited location proche de l'attraction
+            foreach (var user in allUsers)
+            {
+                user.AddToVisitedLocations(new VisitedLocation(user.UserId, attraction, DateTime.Now));
+            }
+
+            //Calcul des récompenses de facon asynchrone
+            var rewardTasks = allUsers.Select(u => _fixture.RewardsService.CalculateRewards(u));
+            await Task.WhenAll(rewardTasks);
+
+            //allUsers.ForEach(u => u.AddToVisitedLocations(new VisitedLocation(u.UserId, attraction, DateTime.Now)));
+
+            //allUsers.ForEach(u => _fixture.RewardsService.CalculateRewards(u));
 
             foreach (var user in allUsers)
             {

@@ -93,11 +93,11 @@ namespace TourGuideTest
             var user = new User(Guid.NewGuid(), "jon", "000", "jon@tourGuide.com");
             var visitedLocation = await _fixture.TourGuideService.TrackUserLocation(user);
 
-            List<Attraction> attractions = await _fixture.TourGuideService.GetNearByAttractions(visitedLocation);
+            var nearbyAttractions = await _fixture.TourGuideService.GetNearByAttractions(visitedLocation, user);
 
             _fixture.TourGuideService.Tracker.StopTracking();
 
-            Assert.Equal(5, attractions.Count);
+            Assert.Equal(5, nearbyAttractions.Count);
         }
 
         [Fact]

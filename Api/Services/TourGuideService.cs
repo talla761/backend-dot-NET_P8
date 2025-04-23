@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.Globalization;
+using TourGuide.Dto;
 using TourGuide.LibrairiesWrappers.Interfaces;
 using TourGuide.Services.Interfaces;
 using TourGuide.Users;
@@ -96,21 +97,55 @@ public class TourGuideService : ITourGuideService
         return visitedLocation;
     }
 
-    public async Task<List<Attraction>> GetNearByAttractions(VisitedLocation visitedLocation)
+    //public async Task<List<Attraction>> GetNearByAttractions(VisitedLocation visitedLocation)
+    //{
+    //    List<Attraction> nearbyAttractions = new ();
+    //    var attractions = await _gpsUtil.GetAttractions();
+
+    //    foreach (var attraction in attractions)
+    //    {
+    //        if (_rewardsService.IsWithinAttractionProximity(attraction, visitedLocation.Location))
+    //        {
+    //            nearbyAttractions.Add(attraction);
+    //        }
+    //    }
+
+    //    return nearbyAttractions;
+    //}
+
+    public async Task<List<NearbyAttractionDto>> GetNearByAttractions(VisitedLocation visitedLocation, User user)
     {
-        List<Attraction> nearbyAttractions = new ();
         var attractions = await _gpsUtil.GetAttractions();
 
-        foreach (var attraction in attractions)
-        {
-            if (_rewardsService.IsWithinAttractionProximity(attraction, visitedLocation.Location))
+        var sortedAttractions = attractions
+            .Select(a => new
             {
-                nearbyAttractions.Add(attraction);
-            }
+                Attraction = a,
+                Distance = _rewardsService.GetDistance(visitedLocation.Location, new Locations(a.Latitude, a.Longitude))
+            })
+            .OrderBy(x => x.Distance)
+            .Take(5)
+            .ToList();
+
+        var result = new List<NearbyAttractionDto>();
+
+        foreach (var item in sortedAttractions)
+        {
+            var rewardPoints = _rewardsService.GetRewardPoints(item.Attraction, user);
+
+            result.Add(new NearbyAttractionDto
+            {
+                AttractionName = item.Attraction.AttractionName,
+                AttractionLocation = new Locations(item.Attraction.Latitude, item.Attraction.Longitude),
+                UserLocation = visitedLocation.Location,
+                DistanceInMiles = item.Distance,
+                RewardPoints = rewardPoints
+            });
         }
 
-        return nearbyAttractions;
+        return result;
     }
+
 
     private void AddShutDownHook()
     {

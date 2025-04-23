@@ -35,20 +35,42 @@ public class RewardsService : IRewardsService
     public async Task CalculateRewards(User user)
     {
         count++;
-        List<VisitedLocation> userLocations = user.VisitedLocations;
-        List<Attraction> attractions =await _gpsUtil.GetAttractions();
+        List<VisitedLocation> userLocations = user.VisitedLocations.ToList();
+        List<Attraction> attractions = await _gpsUtil.GetAttractions();
+
+        var rewardsToAdd = new List<UserReward>();
 
         foreach (var visitedLocation in userLocations)
         {
             foreach (var attraction in attractions)
             {
-                if (!user.UserRewards.Any(r => r.Attraction.AttractionName == attraction.AttractionName))
+                bool alreadyRewarded = user.UserRewards
+                    .Any(r => r.Attraction.AttractionName == attraction.AttractionName);
+
+                if (!alreadyRewarded && NearAttraction(visitedLocation, attraction))
                 {
-                    if (NearAttraction(visitedLocation, attraction))
-                    {
-                        user.AddUserReward(new UserReward(visitedLocation, attraction, GetRewardPoints(attraction, user)));
-                    }
+                    var reward = new UserReward(
+                        visitedLocation,
+                        attraction,
+                        GetRewardPoints(attraction, user)
+
+                        );
+                    rewardsToAdd.Add(reward);
                 }
+
+                //if (!user.UserRewards.Any(r => r.Attraction.AttractionName == attraction.AttractionName))
+                //{
+                //    if (NearAttraction(visitedLocation, attraction))
+                //    {
+                //        user.AddUserReward(new UserReward(visitedLocation, attraction, GetRewardPoints(attraction, user)));
+                //    }
+                //}
+            }
+
+            // On ajoute les récompences apres la boucle pour eviter l'erreur
+            foreach(var reward in rewardsToAdd)
+            {
+                user.AddUserReward(reward); 
             }
         }
     }
@@ -64,7 +86,7 @@ public class RewardsService : IRewardsService
         return GetDistance(attraction, visitedLocation.Location) <= _proximityBuffer;
     }
 
-    private int GetRewardPoints(Attraction attraction, User user)
+    public int GetRewardPoints(Attraction attraction, User user)
     {
         return _rewardsCentral.GetAttractionRewardPoints(attraction.AttractionId, user.UserId);
     }

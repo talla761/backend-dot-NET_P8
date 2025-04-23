@@ -1,5 +1,6 @@
 ﻿using GpsUtil.Location;
 using Microsoft.AspNetCore.Mvc;
+using TourGuide.Dto;
 using TourGuide.Services.Interfaces;
 using TourGuide.Users;
 using TripPricer;
@@ -33,12 +34,15 @@ public class TourGuideController : ControllerBase
     // The distance in miles between the user's location and each of the attractions.
     // The reward points for visiting each Attraction.
     //    Note: Attraction reward points can be gathered from RewardsCentral
+
     [HttpGet("getNearbyAttractions")]
-    public async Task<ActionResult<List<Attraction>>> GetNearbyAttractions([FromQuery] string userName)
+    public async Task<ActionResult<List<NearbyAttractionDto>>> GetNearbyAttractions([FromQuery] string userName)
     {
-        var visitedLocation = await _tourGuideService.GetUserLocation(GetUser(userName));
-        var attractions = await _tourGuideService.GetNearByAttractions(visitedLocation);
-        return Ok(attractions);
+        var user = GetUser(userName);
+        var visitedLocation = await _tourGuideService.GetUserLocation(user);
+        var nearbyAttractions = await _tourGuideService.GetNearByAttractions(visitedLocation, user);
+
+        return Ok(nearbyAttractions);
     }
 
     [HttpGet("getRewards")]
