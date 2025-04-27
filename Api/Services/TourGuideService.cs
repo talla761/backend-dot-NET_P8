@@ -45,7 +45,7 @@ public class TourGuideService : ITourGuideService
         AddShutDownHook();
     }
 
-    public List<UserReward> GetUserRewards(User user)
+    public async Task<List<UserReward>> GetUserRewards(User user)
     {
         return user.UserRewards;
     }
@@ -57,33 +57,35 @@ public class TourGuideService : ITourGuideService
             : await TrackUserLocation(user);
     }
 
-    public User GetUser(string userName)
+    public async Task<User> GetUser(string userName)
     {
         return _internalUserMap.ContainsKey(userName) ? _internalUserMap[userName] : null;
     }
 
-    public List<User> GetAllUsers()
+    public async Task<List<User>> GetAllUsers()
     {
         return _internalUserMap.Values.ToList();
     }
 
-    public void AddUser(User user)
+    public Task AddUser(User user)
     {
         if (!_internalUserMap.ContainsKey(user.UserName))
         {
             _internalUserMap.Add(user.UserName, user);
         }
+
+        return Task.CompletedTask;
     }
 
     public async Task<List<Provider>> GetTripDeals(User user)
     {
         int cumulativeRewardPoints = user.UserRewards.Sum(i => i.RewardPoints);
-        List<Provider> providers = await Task.Run(() =>_tripPricer.GetPrice(TripPricerApiKey, 
+        List<Provider> providers = await _tripPricer.GetPrice(TripPricerApiKey, 
             user.UserId,
             user.UserPreferences.NumberOfAdults, 
             user.UserPreferences.NumberOfChildren,
             user.UserPreferences.TripDuration, 
-            cumulativeRewardPoints));
+            cumulativeRewardPoints);
 
         user.TripDeals = providers;
         return providers;
@@ -97,41 +99,30 @@ public class TourGuideService : ITourGuideService
         return visitedLocation;
     }
 
-    //public async Task<List<Attraction>> GetNearByAttractions(VisitedLocation visitedLocation)
-    //{
-    //    List<Attraction> nearbyAttractions = new ();
-    //    var attractions = await _gpsUtil.GetAttractions();
-
-    //    foreach (var attraction in attractions)
-    //    {
-    //        if (_rewardsService.IsWithinAttractionProximity(attraction, visitedLocation.Location))
-    //        {
-    //            nearbyAttractions.Add(attraction);
-    //        }
-    //    }
-
-    //    return nearbyAttractions;
-    //}
-
     public async Task<List<NearbyAttractionDto>> GetNearByAttractions(VisitedLocation visitedLocation, User user)
     {
         var attractions = await _gpsUtil.GetAttractions();
 
-        var sortedAttractions = attractions
-            .Select(a => new
-            {
-                Attraction = a,
-                Distance = _rewardsService.GetDistance(visitedLocation.Location, new Locations(a.Latitude, a.Longitude))
-            })
+        // Récupérer toutes les distances et trier après
+        var attractionsWithDistance = new List<(Attraction Attraction, double Distance)>();
+
+        foreach (var attraction in attractions)
+        {
+            var distance = await _rewardsService.GetDistance(visitedLocation.Location, new Locations(attraction.Latitude, attraction.Longitude));
+            attractionsWithDistance.Add((attraction, distance));
+        }
+
+        var sortedAttractions = attractionsWithDistance
             .OrderBy(x => x.Distance)
             .Take(5)
             .ToList();
 
         var result = new List<NearbyAttractionDto>();
 
+        // Ajouter les résultats dans le DTO
         foreach (var item in sortedAttractions)
         {
-            var rewardPoints = _rewardsService.GetRewardPoints(item.Attraction, user);
+            var rewardPoints = await _rewardsService.GetRewardPoints(item.Attraction, user);
 
             result.Add(new NearbyAttractionDto
             {
@@ -145,6 +136,7 @@ public class TourGuideService : ITourGuideService
 
         return result;
     }
+
 
 
     private void AddShutDownHook()

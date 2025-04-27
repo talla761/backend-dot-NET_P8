@@ -9,12 +9,15 @@ namespace RewardCentral;
 
 public class RewardCentral
 {
-    public int GetAttractionRewardPoints(Guid attractionId, Guid userId)
-    {
-        int randomDelay = new Random().Next(1, 1000);
-        Thread.Sleep(randomDelay);
+    private static readonly Random _random = new();
 
-        int randomInt = new Random().Next(1, 1000);
+    public async Task<int> GetAttractionRewardPoints(Guid attractionId, Guid userId)
+    {
+        int randomDelay = _random.Next(1, 1000);
+        await Task.Delay(randomDelay); // Simule une latence réseau
+
+        int randomInt = _random.Next(1, 1000);
         return randomInt;
     }
 }
+

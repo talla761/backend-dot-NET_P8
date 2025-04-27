@@ -1,0 +1,34 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - main  # Cela déclenche le pipeline uniquement lorsque tu fais un push sur la branche principale
+  pull_request:
+    branches:
+      - main  # Cela déclenche le pipeline lorsqu'il y a une PR vers la branche principale
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # Utilisation de l'image Ubuntu la plus récente
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v2  # Cette étape vérifie ton code depuis GitHub
+
+    - name: Set up .NET
+      uses: actions/setup-dotnet@v1  # Configuration de l'environnement .NET
+      with:
+        dotnet-version: '5.0'  # Spécifie la version de .NET à utiliser
+
+    - name: Restore Dependencies
+      run: dotnet restore  # Restauration des dépendances NuGet
+
+    - name: Build Project
+      run: dotnet build --configuration Release  # Compilation du projet en mode Release
+
+    - name: Run Tests (Excluding Performance Tests)
+      run: dotnet test --configuration Release --no-build --filter 'FullyQualifiedName!~PerformanceTest' # Exécution des tests
+
+    - name: Publish
+      run: dotnet publish --configuration Release --no-build --output ./publish  # Génération des artefacts (par exemple, publication du projet)

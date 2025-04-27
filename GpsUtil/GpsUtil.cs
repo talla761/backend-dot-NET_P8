@@ -19,10 +19,10 @@ public class GpsUtil
         {
             await Sleep();
 
-            double longitude = ThreadLocalRandom.NextDouble(-180.0, 180.0);
+            double longitude = await ThreadLocalRandom.NextDouble(-180.0, 180.0);
             longitude = Math.Round(longitude, 6);
 
-            double latitude = ThreadLocalRandom.NextDouble(-90, 90);
+            double latitude = await ThreadLocalRandom.NextDouble(-90, 90);
             latitude = Math.Round(latitude, 6);
 
             VisitedLocation visitedLocation = new(userId, new Locations(latitude, longitude), DateTime.UtcNow);

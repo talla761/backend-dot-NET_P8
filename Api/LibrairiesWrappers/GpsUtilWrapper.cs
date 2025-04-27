@@ -22,3 +22,5 @@ public class GpsUtilWrapper : IGpsUtil
         return await _gpsUtil.GetAttractions();
     }
 }
+
+

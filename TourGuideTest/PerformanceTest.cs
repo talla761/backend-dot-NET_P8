@@ -46,12 +46,12 @@ namespace TourGuideTest
 
         //[Fact(Skip = ("Delete Skip when you want to pass the test"))]
         [Fact]
-        public void HighVolumeTrackLocation()
+        public async Task HighVolumeTrackLocation()
         {
             //On peut ici augmenter le nombre d'utilisateurs pour tester les performances
-            _fixture.Initialize(1000);
+            _fixture.Initialize(100000);
 
-            List<User> allUsers = _fixture.TourGuideService.GetAllUsers();
+            List<User> allUsers = await _fixture.TourGuideService.GetAllUsers();
 
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
@@ -73,7 +73,7 @@ namespace TourGuideTest
         public async Task HighVolumeGetRewards()
         {
             //On peut ici augmenter le nombre d'utilisateurs pour tester les performances
-            _fixture.Initialize(10);
+            _fixture.Initialize(100000);
 
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
@@ -81,7 +81,7 @@ namespace TourGuideTest
             var attractions = await _fixture.GpsUtil.GetAttractions();
             Attraction attraction = attractions[0];
 
-            List<User> allUsers = _fixture.TourGuideService.GetAllUsers();
+            List<User> allUsers = await _fixture.TourGuideService.GetAllUsers();
 
             //Ajout d'une visited location proche de l'attraction
             foreach (var user in allUsers)

@@ -19,9 +19,9 @@ public class TourGuideController : ControllerBase
     }
 
     [HttpGet("getLocation")]
-    public ActionResult<VisitedLocation> GetLocation([FromQuery] string userName)
+    public async Task<ActionResult<VisitedLocation>> GetLocation([FromQuery] string userName)
     {
-        var location = _tourGuideService.GetUserLocation(GetUser(userName));
+        var location = await _tourGuideService.GetUserLocation(await _tourGuideService.GetUser(userName));
         return Ok(location);
     }
 
@@ -38,7 +38,7 @@ public class TourGuideController : ControllerBase
     [HttpGet("getNearbyAttractions")]
     public async Task<ActionResult<List<NearbyAttractionDto>>> GetNearbyAttractions([FromQuery] string userName)
     {
-        var user = GetUser(userName);
+        var user = await _tourGuideService.GetUser(userName);
         var visitedLocation = await _tourGuideService.GetUserLocation(user);
         var nearbyAttractions = await _tourGuideService.GetNearByAttractions(visitedLocation, user);
 
@@ -46,21 +46,21 @@ public class TourGuideController : ControllerBase
     }
 
     [HttpGet("getRewards")]
-    public ActionResult<List<UserReward>> GetRewards([FromQuery] string userName)
+    public async Task<ActionResult<List<UserReward>>> GetRewards([FromQuery] string userName)
     {
-        var rewards = _tourGuideService.GetUserRewards(GetUser(userName));
+        var rewards = await _tourGuideService.GetUserRewards(await _tourGuideService.GetUser(userName));
         return Ok(rewards);
     }
 
     [HttpGet("getTripDeals")]
-    public ActionResult<List<Provider>> GetTripDeals([FromQuery] string userName)
+    public async Task<ActionResult<List<Provider>>> GetTripDeals([FromQuery] string userName)
     {
-        var deals = _tourGuideService.GetTripDeals(GetUser(userName));
+        var deals = await _tourGuideService.GetTripDeals(await _tourGuideService.GetUser(userName));
         return Ok(deals);
     }
 
-    private User GetUser(string userName)
+    private async Task<User> GetUser(string userName)
     {
-        return _tourGuideService.GetUser(userName);
+        return await _tourGuideService.GetUser(userName);
     }
 }

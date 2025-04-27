@@ -12,9 +12,9 @@ internal static class ThreadLocalRandom
 
     public static Random Current => threadLocal.Value;
 
-    public static double NextDouble(double minValue, double maxValue)
+    public static async Task<double> NextDouble(double minValue, double maxValue)
     {
-        return Current.NextDouble() * (maxValue - minValue) + minValue;
+        return await Task.FromResult(Current.NextDouble() * (maxValue - minValue) + minValue);
     }
 
     //public static int Next(int minValue, int maxValue)

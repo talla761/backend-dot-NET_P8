@@ -9,13 +9,14 @@ namespace TripPricer;
 
 public class TripPricer
 {
-    public List<Provider> GetPrice(string apiKey, Guid attractionId, int adults, int children, int nightsStay, int rewardsPoints)
+    public async Task<List<Provider>> GetPrice(string apiKey, Guid attractionId, int adults, int children, int nightsStay, int rewardsPoints)
     {
         List<Provider> providers = new List<Provider>();
         HashSet<string> providersUsed = new HashSet<string>();
 
         // Sleep to simulate some latency
-        Thread.Sleep(ThreadLocalRandom.Current.Next(1, 50));
+        //Thread.Sleep(ThreadLocalRandom.Current.Next(1, 50));
+        await Task.Delay(ThreadLocalRandom.Current.Next(1, 50));
 
         for (int i = 0; i < 10; i++)
         {
@@ -31,7 +32,7 @@ public class TripPricer
             string provider;
             do
             {
-                provider = GetProviderName(apiKey, adults);
+                provider = await GetProviderName(apiKey, adults);
             } while (providersUsed.Contains(provider));
 
             providersUsed.Add(provider);
@@ -40,22 +41,46 @@ public class TripPricer
         return providers;
     }
 
-    public string GetProviderName(string apiKey, int adults)
-    {
-        int multiple = ThreadLocalRandom.Current.Next(1, 10);
+    //public async Task<string> GetProviderName(string apiKey, int adults)
+    //{
+    //    int multiple = ThreadLocalRandom.Current.Next(1, 10);
 
-        return multiple switch
-        {
-            1 => "Holiday Travels",
-            2 => "Enterprize Ventures Limited",
-            3 => "Sunny Days",
-            4 => "FlyAway Trips",
-            5 => "United Partners Vacations",
-            6 => "Dream Trips",
-            7 => "Live Free",
-            8 => "Dancing Waves Cruselines and Partners",
-            9 => "AdventureCo",
-            _ => "Cure-Your-Blues",
-        };        
+    //    return multiple switch
+    //    {
+    //        1 => "Holiday Travels",
+    //        2 => "Enterprize Ventures Limited",
+    //        3 => "Sunny Days",
+    //        4 => "FlyAway Trips",
+    //        5 => "United Partners Vacations",
+    //        6 => "Dream Trips",
+    //        7 => "Live Free",
+    //        8 => "Dancing Waves Cruselines and Partners",
+    //        9 => "AdventureCo",
+    //        _ => "Cure-Your-Blues",
+    //    };        
+    //}
+
+    public async Task<string> GetProviderName(string apiKey, int adults)
+    {
+        // Liste des noms de providers disponibles
+        var providers = new List<string>
+    {
+        "Holiday Travels",
+        "Enterprize Ventures Limited",
+        "Sunny Days",
+        "FlyAway Trips",
+        "United Partners Vacations",
+        "Dream Trips",
+        "Live Free",
+        "Dancing Waves Cruselines and Partners",
+        "AdventureCo",
+        "Cure-Your-Blues"
+    };
+
+        // Générer un index aléatoire pour choisir un provider
+        int index = ThreadLocalRandom.Current.Next(0, providers.Count);
+
+        return providers[index];
     }
+
 }
