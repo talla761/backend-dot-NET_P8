@@ -34,7 +34,7 @@ public class RewardsService : IRewardsService
         await Task.CompletedTask; 
     }
 
-    public async Task CalculateRewards(User user)
+    public async Task CalculateRewards(User user) 
     {
         count++;
         List<VisitedLocation> userLocations = user.VisitedLocations.ToList();

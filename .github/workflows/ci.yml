@@ -3,10 +3,10 @@ name: CI Pipeline
 on:
   push:
     branches:
-      - main  # Cela déclenche le pipeline uniquement lorsque tu fais un push sur la branche principale
+      - master  # Cela déclenche le pipeline uniquement lorsque tu fais un push sur la branche principale
   pull_request:
     branches:
-      - main  # Cela déclenche le pipeline lorsqu'il y a une PR vers la branche principale
+      - master  # Cela déclenche le pipeline lorsqu'il y a une PR vers la branche principale
 
 jobs:
   build:
