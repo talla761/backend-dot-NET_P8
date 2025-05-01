@@ -30,7 +30,7 @@ public class RewardsService : IRewardsService
 
     public async Task SetDefaultProximityBuffer()
     {
-        _proximityBuffer = _defaultProximityBuffer;
+        _proximityBuffer = _defaultProximityBuffer; 
         await Task.CompletedTask; 
     }
 

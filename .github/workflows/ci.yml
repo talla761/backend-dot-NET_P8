@@ -19,7 +19,7 @@ jobs:
     - name: Set up .NET
       uses: actions/setup-dotnet@v1  # Configuration de l'environnement .NET
       with:
-        dotnet-version: '5.0'  # Spécifie la version de .NET à utiliser
+        dotnet-version: '7.0'  # Spécifie la version de .NET à utiliser
 
     - name: Restore Dependencies
       run: dotnet restore  # Restauration des dépendances NuGet
