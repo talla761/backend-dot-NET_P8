@@ -41,25 +41,6 @@ public class TripPricer
         return providers;
     }
 
-    //public async Task<string> GetProviderName(string apiKey, int adults)
-    //{
-    //    int multiple = ThreadLocalRandom.Current.Next(1, 10);
-
-    //    return multiple switch
-    //    {
-    //        1 => "Holiday Travels",
-    //        2 => "Enterprize Ventures Limited",
-    //        3 => "Sunny Days",
-    //        4 => "FlyAway Trips",
-    //        5 => "United Partners Vacations",
-    //        6 => "Dream Trips",
-    //        7 => "Live Free",
-    //        8 => "Dancing Waves Cruselines and Partners",
-    //        9 => "AdventureCo",
-    //        _ => "Cure-Your-Blues",
-    //    };        
-    //}
-
     public async Task<string> GetProviderName(string apiKey, int adults)
     {
         // Liste des noms de providers disponibles

@@ -44,7 +44,6 @@ namespace TourGuideTest
             _output = output;
         }
 
-        //[Fact(Skip = ("Delete Skip when you want to pass the test"))]
         [Fact]
         public async Task HighVolumeTrackLocation()
         {
@@ -68,7 +67,6 @@ namespace TourGuideTest
             Assert.True(TimeSpan.FromMinutes(15).TotalSeconds >= stopWatch.Elapsed.TotalSeconds);
         }
 
-        //[Fact(Skip = ("Delete Skip when you want to pass the test"))]
         [Fact]
         public async Task HighVolumeGetRewards()
         {
@@ -92,10 +90,6 @@ namespace TourGuideTest
             //Calcul des récompenses de facon asynchrone
             var rewardTasks = allUsers.Select(u => _fixture.RewardsService.CalculateRewards(u));
             await Task.WhenAll(rewardTasks);
-
-            //allUsers.ForEach(u => u.AddToVisitedLocations(new VisitedLocation(u.UserId, attraction, DateTime.Now)));
-
-            //allUsers.ForEach(u => _fixture.RewardsService.CalculateRewards(u));
 
             foreach (var user in allUsers)
             {
